@@ -12,9 +12,10 @@ import (
 )
 
 var (
-  NotionAPIToken string
-  NotionPageID   string
-  SourceMdFile   string
+  NotionAPIToken   string
+  NotionBlockID    string
+  NotionPageID     string
+  SourceMdFilePath string
 )
 
 func main() {
@@ -54,20 +55,32 @@ func run() error {
         Usage: "upload markdown to notion",
         Flags: []cli.Flag{
           &cli.StringFlag{
-            Name:     "notion-page-id",
-            Usage:    "output notion page id",
+            Name:     "notion-block-id",
+            Usage:    "output below this notion block id",
             Required: true,
           },
           &cli.StringFlag{
-            Name:     "source-md-file",
-            Usage:    "source markdown file",
+            Name:     "source-md-filepath",
+            Usage:    "source markdown file path",
             Required: true,
           },
         },
         Action: func(ctx context.Context, cmd *cli.Command) error {
-          NotionPageID = cmd.String("notion-page-id")
-          SourceMdFile = cmd.String("source-md-file")
-          fmt.Println("added task: ", cmd.Args().First())
+          NotionBlockID = cmd.String("notion-block-id")
+          SourceMdFilePath = cmd.String("source-md-filepath")
+
+          blocks, err := Convert(SourceMdFilePath)
+          if err != nil {
+            return fmt.Errorf("failed to convert markdown to notion: %w", err)
+          }
+          for i, b := range blocks {
+            fmt.Printf("Block %d: %+v\n", i, b)
+          }
+
+          if err := notion.InsertBlocks(ctx, NotionBlockID, blocks); err != nil {
+            return fmt.Errorf("failed to insert blocks: %w", err)
+          }
+
           return nil
         },
       },
