@@ -1,0 +1,9 @@
+*.swp
+.DS_Store
+
+
+### Other ###
+.idea/
+
+### .gitkeep ###
+!.gitkeep
