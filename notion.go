@@ -20,8 +20,8 @@ func NewNotionClient() *Notion {
 }
 
 // DeleteAllBlocks ... Delete all blocks in a Notion page
-func (n *Notion) DeleteAllBlocks(ctx context.Context, pageID string) error {
-  blocks, err := n.Client.Block.GetChildren(ctx, notionapi.BlockID(pageID), &notionapi.Pagination{})
+func (n *Notion) DeleteAllBlocks(ctx context.Context, pageOrBlockID string) error {
+  blocks, err := n.Client.Block.GetChildren(ctx, notionapi.BlockID(pageOrBlockID), &notionapi.Pagination{})
   if err != nil {
     return err
   }
