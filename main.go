@@ -6,10 +6,10 @@ import (
   "log"
   "os"
   "os/signal"
+  "syscall"
 
   "github.com/sioncojp/go-markdown-to-notion/converter"
   "github.com/urfave/cli/v3"
-  "golang.org/x/sys/unix"
 )
 
 var (
@@ -31,7 +31,7 @@ func main() {
 
 func run() error {
   done := make(chan struct{})
-  ctx, cancel := signal.NotifyContext(context.Background(), unix.SIGTERM, unix.SIGINT)
+  ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
   go func() {
     select {
     case <-ctx.Done():
