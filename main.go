@@ -13,13 +13,12 @@ import (
 )
 
 var (
-  NotionAPIToken   string
-  NotionBlockID    string
-  NotionPageID     string
-  SourceMdFilePath string
-  H1Color          string
-  H2Color          string
-  H3Color          string
+  NotionAPIToken      string
+  NotionPageOrBlockID string
+  SourceMdFilePath    string
+  H1Color             string
+  H2Color             string
+  H3Color             string
 )
 
 func main() {
@@ -59,8 +58,8 @@ func run() error {
         Usage: "upload markdown to notion",
         Flags: []cli.Flag{
           &cli.StringFlag{
-            Name:     "notion-block-id",
-            Usage:    "output below this notion block id",
+            Name:     "notion-page-or-block-id",
+            Usage:    "output notion page or below this notion block id",
             Required: true,
           },
           &cli.StringFlag{
@@ -83,9 +82,14 @@ func run() error {
             Usage: "h3 color",
             Value: "yellow",
           },
+          &cli.BoolFlag{
+            Name:  "is-add-table-of-contents",
+            Usage: "add table of contents",
+            Value: false,
+          },
         },
         Action: func(ctx context.Context, cmd *cli.Command) error {
-          NotionBlockID = cmd.String("notion-block-id")
+          NotionPageOrBlockID = cmd.String("notion-page-or-block-id")
           SourceMdFilePath = cmd.String("source-md-filepath")
           H1Color = cmd.String("h1-color")
           H2Color = cmd.String("h2-color")
@@ -102,11 +106,14 @@ func run() error {
           if err != nil {
             return fmt.Errorf("failed to convert markdown to notion: %w", err)
           }
-          //          for i, b := range blocks {
-          //            fmt.Printf("Block %d: %+v\n", i, b)
-          //          }
 
-          if err := notion.InsertBlocks(ctx, NotionBlockID, blocks); err != nil {
+          if cmd.Bool("is-add-table-of-contents") {
+            if err := notion.InsertTableOfContents(ctx, NotionPageOrBlockID); err != nil {
+              return fmt.Errorf("failed to insert table of contents: %w", err)
+            }
+          }
+
+          if err := notion.InsertBlocks(ctx, NotionPageOrBlockID, blocks); err != nil {
             return fmt.Errorf("failed to insert blocks: %w", err)
           }
 
@@ -125,8 +132,8 @@ func run() error {
           },
         },
         Action: func(ctx context.Context, cmd *cli.Command) error {
-          NotionBlockID = cmd.String("notion-page-or-block-id")
-          if err := notion.DeleteAllBlocks(ctx, NotionBlockID); err != nil {
+          NotionPageOrBlockID = cmd.String("notion-page-or-block-id")
+          if err := notion.DeleteAllBlocks(ctx, NotionPageOrBlockID); err != nil {
             return fmt.Errorf("failed to delete all blocks: %w", err)
           }
           return nil

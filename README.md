@@ -16,7 +16,7 @@ go-markdown-to-notion help
 go-markdown-to-notion delete-all-blocks --notion-page-or-block-id xxxxx
 
 # convert and upload markdown file to Notion
-go-markdown-to-notion upload --notion-block-id xxxxx --source-md-filepath sample.md
+go-markdown-to-notion upload --notion-page-or-block-id xxxxx --source-md-filepath sample.md --is-add-table-of-contents
 ```
 
 # License

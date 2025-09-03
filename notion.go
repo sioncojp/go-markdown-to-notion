@@ -75,3 +75,24 @@ func (n *Notion) InsertBlocks(ctx context.Context, blockID string, blocks []noti
 
   return nil
 }
+
+// InsertTableOfContents ... Insert a Table of Contents block into a Notion page
+func (n *Notion) InsertTableOfContents(ctx context.Context, blockID string) error {
+  block := &notionapi.TableOfContentsBlock{
+    BasicBlock: notionapi.BasicBlock{
+      Object: notionapi.ObjectTypeBlock,
+      Type:   notionapi.BlockTypeTableOfContents,
+    },
+    TableOfContents: notionapi.TableOfContents{
+      Color: "default",
+    },
+  }
+
+  if _, err := n.Client.Block.AppendChildren(ctx, notionapi.BlockID(blockID), &notionapi.AppendBlockChildrenRequest{
+    Children: []notionapi.Block{block},
+  }); err != nil {
+    return err
+  }
+
+  return nil
+}
