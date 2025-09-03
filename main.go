@@ -45,7 +45,7 @@ func run() error {
 
   NotionAPIToken = os.Getenv("NOTION_API_TOKEN")
   if NotionAPIToken == "" {
-    return fmt.Errorf("Notion_API_TOKEN environment variable is not set")
+    return fmt.Errorf("NOTION_API_TOKEN environment variable is not set")
   }
 
   // Create a new Notion client

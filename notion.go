@@ -21,17 +21,36 @@ func NewNotionClient() *Notion {
 
 // DeleteAllBlocks ... Delete all blocks in a Notion page
 func (n *Notion) DeleteAllBlocks(ctx context.Context, pageOrBlockID string) error {
-  blocks, err := n.Client.Block.GetChildren(ctx, notionapi.BlockID(pageOrBlockID), &notionapi.Pagination{})
-  if err != nil {
-    return err
-  }
+  var hasError error
+  hasMore := true
+  startCursor := notionapi.Cursor("")
 
-  for _, b := range blocks.Results {
-    if _, err := n.Client.Block.Delete(ctx, b.GetID()); err != nil {
-      return err
+  for hasMore {
+    blocks, err := n.Client.Block.GetChildren(ctx, notionapi.BlockID(pageOrBlockID), &notionapi.Pagination{
+      StartCursor: startCursor,
+      PageSize:    100,
+    })
+    if err != nil {
+      hasError = err
+      break
+    }
+
+    for _, b := range blocks.Results {
+      if _, err := n.Client.Block.Delete(ctx, b.GetID()); err != nil {
+        hasError = err
+        break
+      }
+    }
+    if blocks.HasMore {
+      startCursor = notionapi.Cursor(blocks.NextCursor)
+    } else {
+      hasMore = false
     }
   }
 
+  if hasError != nil {
+    return hasError
+  }
   return nil
 }
 
